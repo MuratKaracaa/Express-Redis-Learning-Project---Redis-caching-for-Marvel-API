@@ -9,7 +9,7 @@ cache.set('characters', characters)
 const cachedData = cache.get('characters')
 function findFromCache(id) {
     let result
-    cachedData.map((element) => {
+    cachedData.find((element) => {
         if (element.id === id) {
             result = element
         }
