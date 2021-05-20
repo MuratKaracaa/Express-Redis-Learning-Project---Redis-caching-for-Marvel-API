@@ -3,10 +3,15 @@ import fetchData from './fetchData.js'
 import nodeCache from 'node-cache'
 
 const characters = await fetchData()
-const cache = new nodeCache({ stdTTL: 10000 })
+
+const cache = new nodeCache()
 cache.set('characters', characters)
 
 const cachedData = cache.get('characters')
+const idList = []
+cachedData.map((element) => {
+    idList.push(element.id)
+})
 
 const app = express()
 const port = 3000
