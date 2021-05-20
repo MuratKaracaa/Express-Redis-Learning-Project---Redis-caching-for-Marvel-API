@@ -3,27 +3,20 @@ import fetchData from './fetchData.js'
 import nodeCache from 'node-cache'
 
 const characters = await fetchData()
-const cache = new nodeCache({ stdTTL: 300 })
+const cache = new nodeCache({ stdTTL: 10000 })
 cache.set('characters', characters)
 
 const cachedData = cache.get('characters')
-function findFromCache(id) {
-    let result
-    cachedData.find((element) => {
-        if (element.id === id) {
-            result = element
-        }
-    })
-    return result
-}
 
 const app = express()
 const port = 3000
 
-let id = 1009146
-
-app.get('/', (req, res) => {
-    res.send(findFromCache(id))
+app.get('/api/characters/:characterID', (req, res) => {
+    const { characterID } = req.params
+    const character = cachedData.find(
+        (element) => element.id === Number(characterID)
+    )
+    res.json(character)
 })
 
 app.listen(port, () => {
