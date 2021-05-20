@@ -3,7 +3,7 @@ import fetchData from './fetchData.js'
 import nodeCache from 'node-cache'
 
 const characters = await fetchData()
-const cache = new nodeCache({ stdTTL: 2 })
+const cache = new nodeCache({ stdTTL: 10000 })
 cache.set('characters', characters)
 
 const cachedData = cache.get('characters')
