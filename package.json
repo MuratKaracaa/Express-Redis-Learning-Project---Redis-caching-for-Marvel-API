@@ -1,11 +1,12 @@
 {
     "dependencies": {
         "axios": "^0.21.1",
+        "cors": "^2.8.5",
         "crypto-js": "^4.0.0",
         "dotenv": "^9.0.2",
         "express": "^4.17.1",
-        "node-cache": "^5.1.2",
-        "prettier": "^2.3.0"
+        "prettier": "^2.3.0",
+        "redis": "^3.1.2"
     },
     "type": "module",
     "name": "marvel",
