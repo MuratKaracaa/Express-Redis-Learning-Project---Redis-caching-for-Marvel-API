@@ -15,9 +15,9 @@ const urlSuffix = `?ts=${date}&apikey=${public_key}&hash=${hashed}`
 async function fetchData() {
     // i<=1480
     const promises = []
-    for (let i = 0; i <= 1480; i += 20) {
+    for (let i = 0; i <= 0; i += 20) {
         let response = await axios.get(
-            `${baseAPIurl}${'characters'}${urlSuffix}&offset=${i}&limit=20`
+            `${baseAPIurl}${'characters'}${urlSuffix}&offset=${i}&limit=5`
         )
         promises.push(response)
     }

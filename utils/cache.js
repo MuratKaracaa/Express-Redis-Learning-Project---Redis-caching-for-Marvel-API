@@ -1,5 +1,5 @@
 import redis from 'redis'
-import fetchData from './fetchData.js'
+import fetchData from './fetchAllCharacterData.js'
 import util from 'util'
 
 const characters = await fetchData()
