@@ -2,6 +2,10 @@ import express from 'express'
 import characterAPI from '../controllers/characterControllers.js'
 const router = express.Router()
 
+router.get('/', (req, res) => {
+    characterAPI(req, res).characters()
+})
+
 router.get('/:characterID', (req, res) =>
     characterAPI(req, res).characterEndPoints()
 )

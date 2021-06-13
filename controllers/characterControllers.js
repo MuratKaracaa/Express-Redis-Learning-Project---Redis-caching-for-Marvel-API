@@ -4,10 +4,17 @@ const cachedData = await cache()
 
 function characterAPI(req, res) {
     const { characterID } = req.params
-    const character = cachedData.find(
-        (element) => element.id === Number(characterID)
-    )
+    const character = cachedData.characters
+        .flat()
+        .find((element) => element.id === Number(characterID))
     return {
+        characters: function () {
+            if (cachedData) {
+                return res.status(200).json(cachedData)
+            } else {
+                return res.status(404).send('nope')
+            }
+        },
         characterEndPoints: function () {
             if (character) {
                 return res.status(200).json(character)
