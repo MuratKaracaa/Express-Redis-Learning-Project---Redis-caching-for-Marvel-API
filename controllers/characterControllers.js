@@ -9,8 +9,8 @@ function characterAPI(req, res) {
         .find((element) => element.id === Number(characterID))
     return {
         characters: function () {
-            if (cachedData) {
-                return res.status(200).json(cachedData)
+            if (cachedData.characters) {
+                return res.status(200).json(cachedData.characters)
             } else {
                 return res.status(404).send('nope')
             }
