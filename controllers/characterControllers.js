@@ -10,7 +10,7 @@ function characterAPI(req, res) {
     return {
         characters: function () {
             if (cachedData.characters) {
-                return res.status(200).json(cachedData.characters)
+                return res.status(200).json(cachedData.characters.flat())
             } else {
                 return res.status(404).send('nope')
             }
