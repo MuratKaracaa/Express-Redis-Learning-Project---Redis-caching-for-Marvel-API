@@ -1,16 +1,16 @@
 import cache from '../utils/cache.js'
 
-const cachedData = await cache()
+const { characters } = await cache()
 
-function characterAPI(req, res) {
+function charactersAPI(req, res) {
     const { characterID } = req.params
-    const character = cachedData.characters
+    const character = characters
         .flat()
         .find((element) => element.id === Number(characterID))
     return {
         characters: function () {
-            if (cachedData.characters) {
-                return res.status(200).json(cachedData.characters.flat())
+            if (characters) {
+                return res.status(200).json(characters.flat())
             } else {
                 return res.status(404).send('nope')
             }
@@ -57,7 +57,14 @@ function characterAPI(req, res) {
                 return res.status(404).send('nope')
             }
         },
+        characterCreators: function () {
+            if (character) {
+                return res.status(200).json(character.creators.items)
+            } else {
+                return res.status(404).send('nope')
+            }
+        },
     }
 }
 
-export default characterAPI
+export default charactersAPI
