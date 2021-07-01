@@ -6,27 +6,13 @@ router.get('/', (req, res) => {
     charactersAPI(req, res).characters()
 })
 
-router.get('/:characterID', (req, res) =>
-    charactersAPI(req, res).characterEndPoints()
-)
+router.get('/:characterID', (req, res) => charactersAPI(req, res))
 
-router.get('/:characterID/comics', (req, res) =>
-    charactersAPI(req, res).characterComics()
-)
-router.get('/:characterID/thumbnail', (req, res) =>
-    charactersAPI(req, res).characterThumbnail()
-)
-router.get('/:characterID/series', (req, res) =>
-    charactersAPI(req, res).characterSeries()
-)
-router.get('/:characterID/events', (req, res) =>
-    charactersAPI(req, res).characterEvents()
-)
-router.get('/:characterID/stories', (req, res) =>
-    charactersAPI(req, res).characterStories()
-)
-router.get('/:characterID/creators', (req, res) =>
-    charactersAPI(req, res).characterCreators()
-)
+router.get('/:characterID/comics', (req, res) => charactersAPI(req, res))
+router.get('/:characterID/thumbnail', (req, res) => charactersAPI(req, res))
+router.get('/:characterID/series', (req, res) => charactersAPI(req, res))
+router.get('/:characterID/events', (req, res) => charactersAPI(req, res))
+router.get('/:characterID/stories', (req, res) => charactersAPI(req, res))
+router.get('/:characterID/creators', (req, res) => charactersAPI(req, res))
 
 export default router

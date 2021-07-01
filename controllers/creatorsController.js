@@ -1,61 +1,49 @@
-import cache from '../utils/cache.js'
+import { getAsync } from '../utils/redisConfig.js'
+import { appendToCache } from '../utils/cache.js'
+import categories from '../lists/categories.js'
 
-const { creators } = await cache()
+let creators = JSON.parse(await getAsync('creators'))
+categories.push('characters', 'thumbnail')
 
 function creatorsAPI(req, res) {
     const { creatorID } = req.params
+
     const creator = creators
         .flat()
         .find((element) => element.id === Number(creatorID))
+    if (creatorID) {
+        const marvelSource = 'http://gateway.marvel.com/v1/public/creators/'
+        const reqId = req.url.match(/\d+/g)[0]
+        if (creator) {
+            let category = categories.find((cat) => req.url.includes(cat))
+            console.log(category)
+
+            if (category && creator[category] && creator[category].items) {
+                return res.status(200).json(creator[category].items)
+            } else if (
+                category &&
+                creator[category] &&
+                !creator[category].items
+            ) {
+                return res.status(200).json(creator[category])
+            } else {
+                return res.status(200).json(creator)
+            }
+        } else {
+            try {
+                appendToCache(marvelSource + reqId).then((val) => {
+                    creators = val
+                    creatorsAPI(req, res)
+                })
+            } catch {
+                return res.status(404).send("creator doesn't exist")
+            }
+        }
+    }
+
     return {
         creators: function () {
-            if (creators) {
-                return res.status(200).json(creators.flat())
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        creatorEndPoints: function () {
-            if (creator) {
-                return res.status(200).json(creator)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        creatorCharacters: function () {
-            if (creator) {
-                return res.status(200).json(creator.characters.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        creatorSeries: function () {
-            if (creator) {
-                return res.status(200).json(creator.series.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        creatorStories: function () {
-            if (creator) {
-                return res.status(200).json(creator.stories.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        creatorEvents: function () {
-            if (creator) {
-                return res.status(200).json(creator.events.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        creatorComics: function () {
-            if (character) {
-                return res.status(200).json(creator.comics.items)
-            } else {
-                return res.status(404).send('nope')
-            }
+            return res.status(200).json(creators.flat())
         },
     }
 }

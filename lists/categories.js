@@ -1,10 +1,3 @@
-const categories = [
-    'characters',
-    'comics',
-    'creators',
-    'events',
-    'series',
-    'stories',
-]
+const categories = ['comics', 'creators', 'events', 'series', 'stories']
 
 export default categories

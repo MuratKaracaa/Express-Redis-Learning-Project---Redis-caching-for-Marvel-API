@@ -1,68 +1,45 @@
-import cache from '../utils/cache.js'
+import { getAsync } from '../utils/redisConfig.js'
+import { appendToCache } from '../utils/cache.js'
+import categories from '../lists/categories.js'
 
-const { series } = await cache()
+let series = JSON.parse(await getAsync('series'))
+categories.push('characters', 'thumbnail')
 
 function seriesAPI(req, res) {
     const { serieID } = req.params
+
     const serie = series
         .flat()
         .find((element) => element.id === Number(serieID))
+    if (serieID) {
+        const marvelSource = 'http://gateway.marvel.com/v1/public/series/'
+        const reqId = req.url.match(/\d+/g)[0]
+        if (serie) {
+            let category = categories.find((cat) => req.url.includes(cat))
+            console.log(category)
+
+            if (category && serie[category] && serie[category].items) {
+                return res.status(200).json(serie[category].items)
+            } else if (category && serie[category] && !serie[category].items) {
+                return res.status(200).json(serie[category])
+            } else {
+                return res.status(200).json(serie)
+            }
+        } else {
+            try {
+                appendToCache(marvelSource + reqId).then((val) => {
+                    series = val
+                    seriesAPI(req, res)
+                })
+            } catch {
+                return res.status(404).send("serie doesn't exist")
+            }
+        }
+    }
+
     return {
         series: function () {
-            if (series) {
-                return res.status(200).json(series.flat())
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        serieEndPoints: function () {
-            if (serie) {
-                return res.status(200).json(serie)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        serieCharacters: function () {
-            if (serie) {
-                return res.status(200).json(serie.characters.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        serieThumbnail: function () {
-            if (serie) {
-                return res.status(200).json(serie.thumbnail)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        serieComics: function () {
-            if (serie) {
-                return res.status(200).json(serie.comics.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        serieStories: function () {
-            if (serie) {
-                return res.status(200).json(serie.stories.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        serieEvents: function () {
-            if (serie) {
-                return res.status(200).json(serie.events.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        serieCreators: function () {
-            if (character) {
-                return res.status(200).json(serie.creators.items)
-            } else {
-                return res.status(404).send('nope')
-            }
+            return res.status(200).json(series.flat())
         },
     }
 }
