@@ -3,7 +3,7 @@ import { eventsAPI } from '../controllers/index.js'
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    eventsAPI(req, res).events()
+    eventsAPI(req, res)
 })
 
 router.get('/:eventID', (req, res) => eventsAPI(req, res))

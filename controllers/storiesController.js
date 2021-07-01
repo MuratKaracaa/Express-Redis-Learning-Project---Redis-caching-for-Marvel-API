@@ -2,10 +2,10 @@ import { getAsync } from '../utils/redisConfig.js'
 import { appendToCache } from '../utils/cache.js'
 import categories from '../lists/categories.js'
 
-let stories = JSON.parse(await getAsync('stories'))
 categories.push('characters', 'thumbnail')
 
-function storiesAPI(req, res) {
+async function storiesAPI(req, res) {
+    const stories = JSON.parse(await getAsync('stories'))
     const { storyID } = req.params
 
     const story = stories
@@ -26,8 +26,7 @@ function storiesAPI(req, res) {
             }
         } else {
             try {
-                appendToCache(marvelSource + reqId).then((val) => {
-                    stories = val
+                return appendToCache(marvelSource + reqId).then(() => {
                     storiesAPI(req, res)
                 })
             } catch {
@@ -36,11 +35,7 @@ function storiesAPI(req, res) {
         }
     }
 
-    return {
-        stories: function () {
-            return res.status(200).json(stories.flat())
-        },
-    }
+    return res.status(200).json(stories.flat())
 }
 
 export default storiesAPI

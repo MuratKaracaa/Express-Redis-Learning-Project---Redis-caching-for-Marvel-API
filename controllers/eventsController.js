@@ -2,10 +2,10 @@ import { getAsync } from '../utils/redisConfig.js'
 import { appendToCache } from '../utils/cache.js'
 import categories from '../lists/categories.js'
 
-let events = JSON.parse(await getAsync('events'))
 categories.push('characters', 'thumbnail')
 
-function eventsAPI(req, res) {
+async function eventsAPI(req, res) {
+    const events = JSON.parse(await getAsync('events'))
     const { eventID } = req.params
 
     const event = events
@@ -27,8 +27,7 @@ function eventsAPI(req, res) {
             }
         } else {
             try {
-                appendToCache(marvelSource + reqId).then((val) => {
-                    events = val
+                return appendToCache(marvelSource + reqId).then(() => {
                     eventsAPI(req, res)
                 })
             } catch {
@@ -37,11 +36,7 @@ function eventsAPI(req, res) {
         }
     }
 
-    return {
-        events: function () {
-            return res.status(200).json(events.flat())
-        },
-    }
+    return res.status(200).json(events.flat())
 }
 
 export default eventsAPI

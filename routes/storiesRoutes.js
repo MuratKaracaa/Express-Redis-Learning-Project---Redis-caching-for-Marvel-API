@@ -3,7 +3,7 @@ import { storiesAPI } from '../controllers/index.js'
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    storiesAPI(req, res).stories()
+    storiesAPI(req, res)
 })
 
 router.get('/:storyID', (req, res) => storiesAPI(req, res))

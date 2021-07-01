@@ -2,10 +2,10 @@ import { getAsync } from '../utils/redisConfig.js'
 import { appendToCache } from '../utils/cache.js'
 import categories from '../lists/categories.js'
 
-let comics = JSON.parse(await getAsync('comics'))
 categories.push('characters', 'thumbnail')
 
-function comicsAPI(req, res) {
+async function comicsAPI(req, res) {
+    const comics = JSON.parse(await getAsync('comics'))
     const { comicID } = req.params
 
     const comic = comics
@@ -27,8 +27,7 @@ function comicsAPI(req, res) {
             }
         } else {
             try {
-                appendToCache(marvelSource + reqId).then((val) => {
-                    comics = val
+                return appendToCache(marvelSource + reqId).then(() => {
                     comicsAPI(req, res)
                 })
             } catch {
@@ -37,11 +36,7 @@ function comicsAPI(req, res) {
         }
     }
 
-    return {
-        comics: function () {
-            return res.status(200).json(comics.flat())
-        },
-    }
+    return res.status(200).json(comics.flat())
 }
 
 export default comicsAPI

@@ -3,7 +3,7 @@ import { charactersAPI } from '../controllers/index.js'
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    charactersAPI(req, res).characters()
+    charactersAPI(req, res)
 })
 
 router.get('/:characterID', (req, res) => charactersAPI(req, res))

@@ -2,10 +2,10 @@ import { getAsync } from '../utils/redisConfig.js'
 import { appendToCache } from '../utils/cache.js'
 import categories from '../lists/categories.js'
 
-let creators = JSON.parse(await getAsync('creators'))
 categories.push('characters', 'thumbnail')
 
-function creatorsAPI(req, res) {
+async function creatorsAPI(req, res) {
+    const creators = JSON.parse(await getAsync('creators'))
     const { creatorID } = req.params
 
     const creator = creators
@@ -31,8 +31,7 @@ function creatorsAPI(req, res) {
             }
         } else {
             try {
-                appendToCache(marvelSource + reqId).then((val) => {
-                    creators = val
+                return appendToCache(marvelSource + reqId).then(() => {
                     creatorsAPI(req, res)
                 })
             } catch {
@@ -41,11 +40,7 @@ function creatorsAPI(req, res) {
         }
     }
 
-    return {
-        creators: function () {
-            return res.status(200).json(creators.flat())
-        },
-    }
+    return res.status(200).json(creators.flat())
 }
 
 export default creatorsAPI
