@@ -1,68 +1,44 @@
-import cache from '../utils/cache.js'
+import { getAsync } from '../utils/redisConfig.js'
+import { appendToCache } from '../utils/cache.js'
+import categories from '../lists/categories.js'
 
-const { stories } = await cache()
+let stories = JSON.parse(await getAsync('stories'))
+categories.push('characters', 'thumbnail')
 
 function storiesAPI(req, res) {
     const { storyID } = req.params
+
     const story = stories
         .flat()
         .find((element) => element.id === Number(storyID))
+    if (storyID) {
+        const marvelSource = 'http://gateway.marvel.com/v1/public/stories/'
+        const reqId = req.url.match(/\d+/g)[0]
+        if (story) {
+            let category = categories.find((cat) => req.url.includes(cat))
+
+            if (category && story[category] && story[category].items) {
+                return res.status(200).json(story[category].items)
+            } else if (category && story[category] && !story[category].items) {
+                return res.status(200).json(story[category])
+            } else {
+                return res.status(200).json(story)
+            }
+        } else {
+            try {
+                appendToCache(marvelSource + reqId).then((val) => {
+                    stories = val
+                    storiesAPI(req, res)
+                })
+            } catch {
+                return res.status(404).send("story doesn't exist")
+            }
+        }
+    }
+
     return {
         stories: function () {
-            if (stories) {
-                return res.status(200).json(stories.flat())
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        storyEndPoints: function () {
-            if (story) {
-                return res.status(200).json(story)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        storyCharacters: function () {
-            if (story) {
-                return res.status(200).json(story.characters.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        storyThumbnail: function () {
-            if (story) {
-                return res.status(200).json(story.thumbnail)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        storyComics: function () {
-            if (story) {
-                return res.status(200).json(story.comics.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        storySeries: function () {
-            if (story) {
-                return res.status(200).json(story.series.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        storyEvents: function () {
-            if (story) {
-                return res.status(200).json(story.events.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        storyCreators: function () {
-            if (character) {
-                return res.status(200).json(story.creators.items)
-            } else {
-                return res.status(404).send('nope')
-            }
+            return res.status(200).json(stories.flat())
         },
     }
 }

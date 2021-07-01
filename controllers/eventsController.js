@@ -1,68 +1,45 @@
-import cache from '../utils/cache.js'
+import { getAsync } from '../utils/redisConfig.js'
+import { appendToCache } from '../utils/cache.js'
+import categories from '../lists/categories.js'
 
-const { events } = await cache()
+let events = JSON.parse(await getAsync('events'))
+categories.push('characters', 'thumbnail')
 
 function eventsAPI(req, res) {
     const { eventID } = req.params
+
     const event = events
         .flat()
         .find((element) => element.id === Number(eventID))
+    if (eventID) {
+        const marvelSource = 'http://gateway.marvel.com/v1/public/events/'
+        const reqId = req.url.match(/\d+/g)[0]
+        if (event) {
+            let category = categories.find((cat) => req.url.includes(cat))
+            console.log(category)
+
+            if (category && event[category] && event[category].items) {
+                return res.status(200).json(event[category].items)
+            } else if (category && event[category] && !event[category].items) {
+                return res.status(200).json(event[category])
+            } else {
+                return res.status(200).json(event)
+            }
+        } else {
+            try {
+                appendToCache(marvelSource + reqId).then((val) => {
+                    events = val
+                    eventsAPI(req, res)
+                })
+            } catch {
+                return res.status(404).send("event doesn't exist")
+            }
+        }
+    }
+
     return {
         events: function () {
-            if (events) {
-                return res.status(200).json(events.flat())
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        eventEndPoints: function () {
-            if (event) {
-                return res.status(200).json(event)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        eventComics: function () {
-            if (event) {
-                return res.status(200).json(event.comics.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        eventThumbnail: function () {
-            if (event) {
-                return res.status(200).json(event.thumbnail)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        eventSeries: function () {
-            if (event) {
-                return res.status(200).json(event.series.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        eventStories: function () {
-            if (event) {
-                return res.status(200).json(event.stories.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        eventCharacters: function () {
-            if (event) {
-                return res.status(200).json(event.characters.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        eventCreators: function () {
-            if (event) {
-                return res.status(200).json(event.creators.items)
-            } else {
-                return res.status(404).send('nope')
-            }
+            return res.status(200).json(events.flat())
         },
     }
 }

@@ -1,68 +1,38 @@
-import cache from '../utils/cache.js'
+import { initialCache } from '../utils/cache.js'
+import categories from '../lists/categories.js'
 
-const { characters } = await cache()
+const characters = await initialCache()
+categories.push('characters', 'thumbnail')
 
 function charactersAPI(req, res) {
     const { characterID } = req.params
     const character = characters
         .flat()
         .find((element) => element.id === Number(characterID))
+
+    if (characterID) {
+        if (character) {
+            let category = categories.find((cat) => req.url.includes(cat))
+
+            if (category && character[category] && character[category].items) {
+                return res.status(200).json(character[category].items)
+            } else if (
+                category &&
+                character[category] &&
+                !character[category].items
+            ) {
+                return res.status(200).json(character[category])
+            } else {
+                return res.status(200).json(character)
+            }
+        } else {
+            return res.status(404).send('nope')
+        }
+    }
+
     return {
         characters: function () {
-            if (characters) {
-                return res.status(200).json(characters.flat())
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        characterEndPoints: function () {
-            if (character) {
-                return res.status(200).json(character)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        characterComics: function () {
-            if (character) {
-                return res.status(200).json(character.comics.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        characterThumbnail: function () {
-            if (character) {
-                return res.status(200).json(character.thumbnail)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        characterSeries: function () {
-            if (character) {
-                return res.status(200).json(character.series.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        characterStories: function () {
-            if (character) {
-                return res.status(200).json(character.stories.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        characterEvents: function () {
-            if (character) {
-                return res.status(200).json(character.events.items)
-            } else {
-                return res.status(404).send('nope')
-            }
-        },
-        characterCreators: function () {
-            if (character) {
-                return res.status(200).json(character.creators.items)
-            } else {
-                return res.status(404).send('nope')
-            }
+            return res.status(200).json(characters)
         },
     }
 }
