@@ -2,10 +2,10 @@ import { getAsync } from '../utils/redisConfig.js'
 import { appendToCache } from '../utils/cache.js'
 import categories from '../lists/categories.js'
 
-let series = JSON.parse(await getAsync('series'))
 categories.push('characters', 'thumbnail')
 
-function seriesAPI(req, res) {
+async function seriesAPI(req, res) {
+    const series = JSON.parse(await getAsync('series'))
     const { serieID } = req.params
 
     const serie = series
@@ -27,8 +27,7 @@ function seriesAPI(req, res) {
             }
         } else {
             try {
-                appendToCache(marvelSource + reqId).then((val) => {
-                    series = val
+                return appendToCache(marvelSource + reqId).then(() => {
                     seriesAPI(req, res)
                 })
             } catch {
@@ -37,11 +36,7 @@ function seriesAPI(req, res) {
         }
     }
 
-    return {
-        series: function () {
-            return res.status(200).json(series.flat())
-        },
-    }
+    return res.status(200).json(series.flat())
 }
 
 export default seriesAPI

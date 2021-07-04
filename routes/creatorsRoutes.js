@@ -3,7 +3,7 @@ import { creatorsAPI } from '../controllers/index.js'
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    creatorsAPI(req, res).creators()
+    creatorsAPI(req, res)
 })
 
 router.get('/:creatorID', (req, res) => creatorsAPI(req, res))

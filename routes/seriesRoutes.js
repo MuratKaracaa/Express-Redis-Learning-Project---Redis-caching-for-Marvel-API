@@ -3,7 +3,7 @@ import { seriesAPI } from '../controllers/index.js'
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    seriesAPI(req, res).series()
+    seriesAPI(req, res)
 })
 
 router.get('/:serieID', (req, res) => seriesAPI(req, res))

@@ -30,11 +30,7 @@ function charactersAPI(req, res) {
         }
     }
 
-    return {
-        characters: function () {
-            return res.status(200).json(characters)
-        },
-    }
+    return res.status(200).json(characters)
 }
 
 export default charactersAPI

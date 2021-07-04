@@ -3,7 +3,7 @@ import { comicsAPI } from '../controllers/index.js'
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    comicsAPI(req, res).comics()
+    comicsAPI(req, res)
 })
 
 router.get('/:comicID', (req, res) => comicsAPI(req, res))
